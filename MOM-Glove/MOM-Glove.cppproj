@@ -84,6 +84,7 @@
       <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino</Value>
       <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard</Value>
       <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial\src</Value>
       <Value>../pfleury</Value>
       <Value>../Adafruit_Sensor</Value>
       <Value>../Adafruit_BNO055</Value>
@@ -110,6 +111,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\..\Program Files %28x86%29\Arduino\hardware\arduino\avr\libraries\SoftwareSerial\src\SoftwareSerial.cpp">
+      <SubType>compile</SubType>
+      <Link>SoftwareSerial.cpp</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\Program Files %28x86%29\Arduino\hardware\arduino\avr\libraries\Wire\src\utility\twi.c">
       <SubType>compile</SubType>
       <Link>twi.c</Link>
