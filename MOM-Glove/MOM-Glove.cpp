@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "Adafruit_BNO055.h"
+#include "Adafruit_DRV2605.h"
 extern "C" {
 	//#include "pfleury/uart.h"
 };
@@ -16,6 +17,7 @@ LOCKBITS = LB_MODE_3;	//0xFC
 #define FILTER_LOG2		4		// power of two
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
+Adafruit_DRV2605 drv = Adafruit_DRV2605();
 
 void setup()
 {
@@ -28,6 +30,9 @@ void setup()
 	delay(1000);
 	bno.setExtCrystalUse(true);
 	
+	drv.begin();
+	drv.go();
+
 	sei();
 }
 
