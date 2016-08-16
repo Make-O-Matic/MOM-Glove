@@ -3,16 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
 Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "arduinocore", "arduinocore\arduinocore.cppproj", "{959AACCD-CCF4-47F4-A025-7A6FCA0FDD0F}"
 EndProject
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "MOM-Glove", "MOM-Glove\MOM-Glove.cppproj", "{46BE84AB-A847-45E5-97CE-09EBC6E8EA0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|AVR = Debug|AVR
 		Release|AVR = Release|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{959AACCD-CCF4-47F4-A025-7A6FCA0FDD0F}.Debug|AVR.ActiveCfg = Debug|AVR
-		{959AACCD-CCF4-47F4-A025-7A6FCA0FDD0F}.Debug|AVR.Build.0 = Debug|AVR
 		{959AACCD-CCF4-47F4-A025-7A6FCA0FDD0F}.Release|AVR.ActiveCfg = Release|AVR
 		{959AACCD-CCF4-47F4-A025-7A6FCA0FDD0F}.Release|AVR.Build.0 = Release|AVR
+		{46BE84AB-A847-45E5-97CE-09EBC6E8EA0B}.Release|AVR.ActiveCfg = Release|AVR
+		{46BE84AB-A847-45E5-97CE-09EBC6E8EA0B}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
