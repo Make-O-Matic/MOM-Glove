@@ -1,40 +1,45 @@
 #include <Arduino.h>
-#include <Servo.h>
+#include "Adafruit_BNO055.h"
+extern "C" {
+	//#include "pfleury/uart.h"
+};
 
-Servo serv;
-
-const int led = 13;
-const int servo = 10;
-
-int serial_putchar(char c, FILE* f);
-void setup();
-void loop();
-
-int serial_putchar(char c, FILE* f)
+FUSES =
 {
-	if (c == '\n') serial_putchar('\r', f);
-	return Serial.write(c) == 1? 0 : 1;
-}
+	.low = 0xFF,	//0xFF
+	.high = FUSE_SPIEN & FUSE_BOOTSZ0 & FUSE_BOOTRST,	//0xDC
+	.extended = FUSE_BODLEVEL1	//0xFD
+};
+LOCKBITS = LB_MODE_3;	//0xFC
 
-FILE serial_stdout;
+#define UART_BAUD_RATE	115200
+#define FILTER_LOG2		4		// power of two
+
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
 void setup()
 {
-	pinMode(led, OUTPUT);
-	
 	Serial.begin(115200);
-	fdev_setup_stream(&serial_stdout, serial_putchar, NULL, _FDEV_SETUP_WRITE);
-	stdout = &serial_stdout;
+	if(!bno.begin())
+	{
+		//uart_puts("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+		while(1);
+	}
+	delay(1000);
+	bno.setExtCrystalUse(true);
 	
-	serv.attach(servo);
-	serv.write(90);
+	sei();
 }
 
 void loop()
 {
-	printf("Arduino-Library-Test by Daniel A. Maierhofer 2014\n");
-	digitalWrite(led, HIGH);
-	delay(200);
-	digitalWrite(led, LOW);
-	delay(300);
+	sensors_event_t event;
+	bno.getEvent(&event);
+
+	Serial.print(event.orientation.x, 4);
+	Serial.print(";");
+	Serial.print(event.orientation.y, 4);
+	Serial.print(";");
+	Serial.println(event.orientation.z, 4);
+	delay(10);
 }

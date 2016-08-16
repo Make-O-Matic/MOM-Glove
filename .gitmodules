@@ -1,0 +1,12 @@
+[submodule "MOM-Glove/pfleury"]
+	path = MOM-Glove/pfleury
+	url = https://github.com/damadmai/pfleury.git
+[submodule "MOM-Glove/Adafruit_BNO055"]
+	path = MOM-Glove/Adafruit_BNO055
+	url = https://github.com/Make-O-Matic/Adafruit_BNO055.git
+[submodule "MOM-Glove/Adafruit_Sensor"]
+	path = MOM-Glove/Adafruit_Sensor
+	url = https://github.com/adafruit/Adafruit_Sensor.git
+[submodule "MOM-Glove/Adafruit_DRV2605_Library"]
+	path = MOM-Glove/Adafruit_DRV2605_Library
+	url = https://github.com/adafruit/Adafruit_DRV2605_Library.git
