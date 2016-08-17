@@ -23,6 +23,9 @@ Adafruit_DRV2605 drv = Adafruit_DRV2605();
 
 SoftwareSerial SoftSerial(2, 3);
 unsigned char buffer[64];
+#define ID_LENGTH 12
+unsigned char list[10][ID_LENGTH];
+uint8_t listcnt = 0;
 uint8_t ledcnt = 0;
 
 
@@ -40,7 +43,6 @@ void setup()
 	bno.setExtCrystalUse(true);
 	
 	drv.begin();
-	drv.go();
 
 	sei();
 }
@@ -86,6 +88,20 @@ void loop()
 				Serial.write(buffer,count);
 				Serial.write('\n');
 				ledcnt = 0;
+				bool match = false;
+				for (int i = 0; i < listcnt; i++)
+				{
+					if (memcmp(buffer, list[i], sizeof(list[0])) == 0)
+					{
+						match = true;
+						break;
+					}
+				}
+				if (! match && listcnt < 10)
+				{
+					memcpy(list[listcnt++], buffer, sizeof(list[0]));
+					drv.go();
+				}
 			}
 			else
 			{
