@@ -24,7 +24,7 @@ Adafruit_DRV2605 drv = Adafruit_DRV2605();
 SoftwareSerial SoftSerial(2, 3);
 unsigned char buffer[64];
 #define ID_LENGTH 12
-unsigned char list[10][ID_LENGTH];
+unsigned char last[ID_LENGTH];
 uint8_t listcnt = 0;
 uint8_t ledcnt = 0;
 #define VIB_CNT 15
@@ -102,18 +102,9 @@ void loop()
 			else if (c == 0x03)
 			{
 				ledcnt = 0;
-				bool match = false;
-				for (int i = 0; i < listcnt; i++)
+				if (memcmp(buffer, last, sizeof(last)) != 0)
 				{
-					if (memcmp(buffer, list[i], sizeof(list[0])) == 0)
-					{
-						match = true;
-						break;
-					}
-				}
-				if (! match && listcnt < 10)
-				{
-					memcpy(list[listcnt++], buffer, sizeof(list[0]));
+					memcpy(last, buffer, sizeof(last));
 					drv.go();
 					vibcnt = VIB_CNT;
 				}
