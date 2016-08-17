@@ -135,6 +135,10 @@
       <SubType>compile</SubType>
       <Link>Adafruit_DRV2605.cpp</Link>
     </Compile>
+    <Compile Include="Adafruit_DRV2605_Library\Adafruit_DRV2605.h">
+      <SubType>compile</SubType>
+      <Link>Adafruit_DRV2605.h</Link>
+    </Compile>
     <Compile Include="Adafruit_Sensor\Adafruit_Sensor.h">
       <SubType>compile</SubType>
       <Link>Adafruit_Sensor.h</Link>

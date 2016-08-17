@@ -43,6 +43,15 @@ void setup()
 	bno.setExtCrystalUse(true);
 	
 	drv.begin();
+	drv.useERM();
+	drv.selectLibrary(2);
+	for(int i = 0; i < 124; i++) {
+		drv.setWaveform(1,i);
+		Serial.println(i);
+		drv.go();
+		delay(1000);
+		drv.stop();
+	}
 
 	sei();
 }
