@@ -49,14 +49,25 @@ void setup()
 
 void loop()
 {
-	//sensors_event_t event;
-	//bno.getEvent(&event);
+	sensors_event_t event;
+	bno.getEvent(&event);
+	imu::Vector<3> vec = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
 
-	//Serial.print(event.orientation.x, 4);
-	//Serial.print(";");
-	//Serial.print(event.orientation.y, 4);
-	//Serial.print(";");
-	//Serial.println(event.orientation.z, 4);
+	Serial.print("{\"rfid\":\"");
+	Serial.write(buffer,ID_LENGTH);
+	Serial.print("\",\"imu\":{\"e\":{\"x\":");
+	Serial.print(event.orientation.x, 4);
+	Serial.print(",\"y\":");
+	Serial.print(event.orientation.y, 4);
+	Serial.print(",\"z\":");
+	Serial.print(event.orientation.z, 4);
+	Serial.print("},\"a\":{\"x\":");
+	Serial.print(vec.x(), 4);
+	Serial.print(",\"y\":");
+	Serial.print(vec.y(), 4);
+	Serial.print(",\"z\":");
+	Serial.print(vec.z(), 4);
+	Serial.print("}}}\n");
 
 	if (ledcnt < 10)
 	{
@@ -71,7 +82,7 @@ void loop()
 		digitalWrite(13, LOW);
 	}
 
-	delay(10);
+	delay(20);
 
 	if (SoftSerial.available())
 	{
@@ -85,8 +96,6 @@ void loop()
 			}
 			else if (c == 0x03)
 			{
-				Serial.write(buffer,count);
-				Serial.write('\n');
 				ledcnt = 0;
 				bool match = false;
 				for (int i = 0; i < listcnt; i++)
