@@ -58,28 +58,45 @@ void process_rfid(uint8_t c)
 	}
 }
 
-void setup()
+inline void set_led(void)
 {
-	pinMode(13, OUTPUT);
-	Serial.begin(115200);
-	SoftSerial.begin(9600);
-	if(!bno.begin())
+	if (ledcnt < 10)
 	{
-		//uart_puts("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-		while(1);
+		if (ledcnt == 0)
+		{
+			digitalWrite(LED_BUILTIN, HIGH);
+		}
+		ledcnt++;
 	}
-	delay(1000);
-	bno.setExtCrystalUse(true);
-	
-	drv.begin();
-	drv.useERM();
-	drv.selectLibrary(2);
-	drv.setWaveform(VIB_BIB, VIB_NR);
-
-	sei();
+	else
+	{
+		digitalWrite(LED_BUILTIN, LOW);
+	}
 }
 
-void loop()
+inline void set_vib(uint8_t vibnr)
+{
+	if (vibnr < sizeof(vibr))
+	{
+		drv.setWaveform(VIB_BIB, vibr[vibnr]);
+		drv.go();
+	}
+}
+
+inline void set_vib_2nd(void)
+{
+	if (vibcnt != 0)
+	{
+		vibcnt--;
+		if (vibcnt == 0)
+		{
+			drv.setWaveform(VIB_BIB, VIB_NR);
+			drv.go();
+		}
+	}
+}
+
+inline void print_bno(void)
 {
 	sensors_event_t event;
 	bno.getEvent(&event);
@@ -100,19 +117,34 @@ void loop()
 	Serial.print(",\"z\":");
 	Serial.print(vec.z(), 4);
 	Serial.print("}}}\n");
+}
 
-	if (ledcnt < 10)
+void setup()
+{
+	pinMode(LED_BUILTIN, OUTPUT);
+	Serial.begin(115200);
+	SoftSerial.begin(9600);
+	if(!bno.begin())
 	{
-		if (ledcnt == 0)
-		{
-			digitalWrite(13, HIGH);
-		}
-		ledcnt++;
+		//uart_puts("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+		while(1);
 	}
-	else
-	{
-		digitalWrite(13, LOW);
-	}
+	delay(1000);
+	bno.setExtCrystalUse(true);
+	
+	drv.begin();
+	drv.useERM();
+	drv.selectLibrary(2);
+	drv.setWaveform(VIB_BIB, VIB_NR);
+
+	sei();
+}
+
+void loop()
+{
+	print_bno();
+
+	set_led();
 
 	delay(20);
 
@@ -122,20 +154,7 @@ void loop()
 	}
 	if (Serial.available())
 	{
-		uint8_t i = Serial.read();
-		if (i < sizeof(vibr))
-		{
-			drv.setWaveform(VIB_BIB, vibr[i]);
-			drv.go();
-		}
+		set_vib(Serial.read());
 	}
-	if (vibcnt != 0)
-	{
-		vibcnt--;
-		if (vibcnt == 0)
-		{
-			drv.setWaveform(VIB_BIB, VIB_NR);
-			drv.go();
-		}
-	}
+	set_vib_2nd();
 }
