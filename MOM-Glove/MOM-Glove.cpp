@@ -35,6 +35,7 @@ uint8_t vibr[] = {14,15,16,47,48,54,64,70,73};
 #define KEY	6
 #define SWITCH	7
 #define CAPSENS	8
+#define MYOSENS A6
 
 void process_rfid(uint8_t c)
 {
@@ -129,6 +130,12 @@ inline void print_dig(void)
 	Serial.print(digitalRead(SWITCH) ? '1' : '0');
 	Serial.print(",\"capsens\" :");
 	Serial.print(digitalRead(CAPSENS) ? '1' : '0');
+}
+
+inline void print_ana(void)
+{
+	Serial.print(",\"myo\" :");
+	Serial.print(analogRead(MYOSENS));
 	Serial.print("}\n");
 }
 
@@ -160,6 +167,7 @@ void loop()
 {
 	print_bno();
 	print_dig();
+	print_ana();
 
 	set_led();
 
