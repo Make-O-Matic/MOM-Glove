@@ -31,8 +31,10 @@ uint8_t ledcnt = 0;
 #define VIB_BIB 1
 #define VIB_NR 14
 uint8_t vibcnt = 0;
-
 uint8_t vibr[] = {14,15,16,47,48,54,64,70,73};
+#define KEY	6
+#define SWITCH	7
+#define CAPSENS	8
 
 void process_rfid(uint8_t c)
 {
@@ -116,12 +118,26 @@ inline void print_bno(void)
 	Serial.print(vec.y(), 4);
 	Serial.print(",\"z\":");
 	Serial.print(vec.z(), 4);
-	Serial.print("}}}\n");
+	Serial.print("}}");
+}
+
+inline void print_dig(void)
+{
+	Serial.print(",\"key\" :");
+	Serial.print(digitalRead(KEY) ? '1' : '0');
+	Serial.print(",\"switch\" :");
+	Serial.print(digitalRead(SWITCH) ? '1' : '0');
+	Serial.print(",\"capsens\" :");
+	Serial.print(digitalRead(CAPSENS) ? '1' : '0');
+	Serial.print("}\n");
 }
 
 void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
+	pinMode(KEY, INPUT_PULLUP);
+	pinMode(SWITCH, INPUT_PULLUP);
+	pinMode(CAPSENS, INPUT_PULLUP);
 	Serial.begin(115200);
 	SoftSerial.begin(9600);
 	if(!bno.begin())
@@ -143,6 +159,7 @@ void setup()
 void loop()
 {
 	print_bno();
+	print_dig();
 
 	set_led();
 
