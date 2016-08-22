@@ -34,6 +34,30 @@ uint8_t vibcnt = 0;
 
 uint8_t vibr[] = {14,15,16,47,48,54,64,70,73};
 
+void process_rfid(uint8_t c)
+{
+	static int count = 0;
+	if (c == 0x02)
+	{
+		count = 0;
+	}
+	else if (c == 0x03)
+	{
+		ledcnt = 0;
+		if (memcmp(buffer, last, sizeof(last)) != 0)
+		{
+			memcpy(last, buffer, sizeof(last));
+			drv.setWaveform(VIB_BIB, VIB_NR);
+			drv.go();
+			vibcnt = VIB_CNT;
+		}
+	}
+	else if(count < 64)
+	{
+		buffer[count++] = c;
+	}
+}
+
 void setup()
 {
 	pinMode(13, OUTPUT);
@@ -92,34 +116,9 @@ void loop()
 
 	delay(20);
 
-	if (SoftSerial.available())
+	while(SoftSerial.available())
 	{
-		static int count = 0;
-		while(SoftSerial.available())
-		{
-			uint8_t c = SoftSerial.read();
-			if (c == 0x02)
-			{
-				count = 0;
-			}
-			else if (c == 0x03)
-			{
-				ledcnt = 0;
-				if (memcmp(buffer, last, sizeof(last)) != 0)
-				{
-					memcpy(last, buffer, sizeof(last));
-					drv.setWaveform(VIB_BIB, VIB_NR);
-					drv.go();
-					vibcnt = VIB_CNT;
-				}
-			}
-			else
-			{
-				buffer[count++]=c;
-			}
-			if(count == 64)
-				break;
-		}
+		process_rfid(SoftSerial.read());
 	}
 	if (Serial.available())
 	{
