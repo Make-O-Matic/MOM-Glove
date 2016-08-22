@@ -28,8 +28,11 @@ unsigned char last[ID_LENGTH];
 uint8_t listcnt = 0;
 uint8_t ledcnt = 0;
 #define VIB_CNT 15
+#define VIB_BIB 1
+#define VIB_NR 14
 uint8_t vibcnt = 0;
 
+uint8_t vibr[] = {14,15,16,47,48,54,64,70,73};
 
 void setup()
 {
@@ -47,7 +50,7 @@ void setup()
 	drv.begin();
 	drv.useERM();
 	drv.selectLibrary(2);
-	drv.setWaveform(1,14);
+	drv.setWaveform(VIB_BIB, VIB_NR);
 
 	sei();
 }
@@ -105,6 +108,7 @@ void loop()
 				if (memcmp(buffer, last, sizeof(last)) != 0)
 				{
 					memcpy(last, buffer, sizeof(last));
+					drv.setWaveform(VIB_BIB, VIB_NR);
 					drv.go();
 					vibcnt = VIB_CNT;
 				}
@@ -118,12 +122,20 @@ void loop()
 		}
 	}
 	if (Serial.available())
-		SoftSerial.write(Serial.read());
+	{
+		uint8_t i = Serial.read();
+		if (i < sizeof(vibr))
+		{
+			drv.setWaveform(VIB_BIB, vibr[i]);
+			drv.go();
+		}
+	}
 	if (vibcnt != 0)
 	{
 		vibcnt--;
 		if (vibcnt == 0)
 		{
+			drv.setWaveform(VIB_BIB, VIB_NR);
 			drv.go();
 		}
 	}
