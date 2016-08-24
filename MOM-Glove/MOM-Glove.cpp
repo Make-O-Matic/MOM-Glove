@@ -99,44 +99,61 @@ inline void set_vib_2nd(void)
 	}
 }
 
+void print_escaped(char c)
+{
+	Serial.write(c);
+	if (c == '\n')
+		Serial.write('\n');
+}
+
+void print_float(float val)
+{
+		union
+		{
+			float f;
+			char c[4];
+		};
+		f = val;
+		for (int i = 0; i < 4; i++)
+			print_escaped(c[i]);
+}
+
+void print_uint16(float val)
+{
+	union
+	{
+		uint16_t ui;
+		char c[2];
+	};
+	ui = val;
+	for (int i = 0; i < 2; i++)
+	print_escaped(c[i]);
+}
+
 inline void print_bno(void)
 {
 	sensors_event_t event;
 	bno.getEvent(&event);
 	imu::Vector<3> vec = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
 
-	Serial.print("{\"rfid\":\"");
 	Serial.write(buffer,ID_LENGTH);
-	Serial.print("\",\"imu\":{\"e\":{\"x\":");
-	Serial.print(event.orientation.x, 4);
-	Serial.print(",\"y\":");
-	Serial.print(event.orientation.y, 4);
-	Serial.print(",\"z\":");
-	Serial.print(event.orientation.z, 4);
-	Serial.print("},\"a\":{\"x\":");
-	Serial.print(vec.x(), 4);
-	Serial.print(",\"y\":");
-	Serial.print(vec.y(), 4);
-	Serial.print(",\"z\":");
-	Serial.print(vec.z(), 4);
-	Serial.print("}}");
+	print_float(event.orientation.x);
+	print_float(event.orientation.y);
+	print_float(event.orientation.z);
+	print_float(vec.x());
+	print_float(vec.y());
+	print_float(vec.z());
 }
 
 inline void print_dig(void)
 {
-	Serial.print(",\"key\" :");
-	Serial.print(digitalRead(KEY) ? '1' : '0');
-	Serial.print(",\"switch\" :");
-	Serial.print(digitalRead(SWITCH) ? '1' : '0');
-	Serial.print(",\"capsens\" :");
-	Serial.print(digitalRead(CAPSENS) ? '1' : '0');
+	print_escaped((char) (digitalRead(KEY) ? '1' : '0') + (digitalRead(SWITCH) ? '2' : '0') + (digitalRead(CAPSENS) ? '4' : '0'));
 }
 
 inline void print_ana(void)
 {
-	Serial.print(",\"myo\" :");
-	Serial.print(analogRead(MYOSENS));
-	Serial.print("}\n");
+	print_uint16(analogRead(MYOSENS));
+	Serial.print("{}\n");
 }
 
 void setup()
