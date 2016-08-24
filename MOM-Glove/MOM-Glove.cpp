@@ -103,11 +103,9 @@ inline void set_vib_2nd(void)
 
 inline void print_rfid(void)
 {
-	Serial.print("{\"rfid\":{\"id\":\"");
 	Serial.write(last, ID_LENGTH);
-	Serial.print("\",\"nr\":");
+	Serial.print("\t");
 	Serial.print(lastnr);
-	Serial.print('}');
 
 }
 
@@ -117,36 +115,36 @@ inline void print_bno(void)
 	bno.getEvent(&event);
 	imu::Vector<3> vec = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
 
-	Serial.print(",\"imu\":{\"e\":{\"x\":");
+	Serial.print("\t");
 	Serial.print(event.orientation.x, 4);
-	Serial.print(",\"y\":");
+	Serial.print("\t");
 	Serial.print(event.orientation.y, 4);
-	Serial.print(",\"z\":");
+	Serial.print("\t");
 	Serial.print(event.orientation.z, 4);
-	Serial.print("},\"a\":{\"x\":");
+	Serial.print("\t");
 	Serial.print(vec.x(), 4);
-	Serial.print(",\"y\":");
+	Serial.print("\t");
 	Serial.print(vec.y(), 4);
-	Serial.print(",\"z\":");
+	Serial.print("\t");
 	Serial.print(vec.z(), 4);
-	Serial.print("}}");
+	Serial.print("\t");
 }
 
 inline void print_dig(void)
 {
-	Serial.print(",\"key\" :");
+	Serial.print("\t");
 	Serial.print(digitalRead(KEY) ? '1' : '0');
-	Serial.print(",\"switch\" :");
+	Serial.print("\t");
 	Serial.print(digitalRead(SWITCH) ? '1' : '0');
-	Serial.print(",\"capsens\" :");
+	Serial.print("\t");
 	Serial.print(digitalRead(CAPSENS) ? '1' : '0');
 }
 
 inline void print_ana(void)
 {
-	Serial.print(",\"myo\" :");
+	Serial.print("\t");
 	Serial.print(analogRead(MYOSENS));
-	Serial.print("}\n");
+	Serial.print("\n");
 }
 
 void setup()
@@ -170,6 +168,8 @@ void setup()
 	drv.useERM();
 	drv.selectLibrary(2);
 	drv.setWaveform(VIB_BIB, VIB_NR);
+	
+	Serial.println("rfid\tid\tnr\timu\tex\tey\tez\tax\tay\taz\tkey\tswitch\tcapsens\tmyo");
 
 	sei();
 }
