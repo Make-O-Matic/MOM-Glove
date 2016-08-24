@@ -16,15 +16,17 @@ FUSES =
 LOCKBITS = LB_MODE_3;	//0xFC
 
 #define UART_BAUD_RATE	115200
-#define FILTER_LOG2		4		// power of two
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 Adafruit_DRV2605 drv = Adafruit_DRV2605();
 
-SoftwareSerial SoftSerial(2, 3);
+SoftwareSerial RFID_1(2, 3);
+SoftwareSerial RFID_2(4, 5);
+uint8_t switchcnt;
 unsigned char buffer[64];
 #define ID_LENGTH 12
 unsigned char last[ID_LENGTH];
+uint8_t lastnr = 0;
 uint8_t listcnt = 0;
 uint8_t ledcnt = 0;
 #define VIB_CNT 15
@@ -99,15 +101,23 @@ inline void set_vib_2nd(void)
 	}
 }
 
+inline void print_rfid(void)
+{
+	Serial.print("{\"rfid\":{\"id\":\"");
+	Serial.write(last, ID_LENGTH);
+	Serial.print("\",\"nr\":");
+	Serial.print(lastnr);
+	Serial.print('}');
+
+}
+
 inline void print_bno(void)
 {
 	sensors_event_t event;
 	bno.getEvent(&event);
 	imu::Vector<3> vec = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
 
-	Serial.print("{\"rfid\":\"");
-	Serial.write(buffer,ID_LENGTH);
-	Serial.print("\",\"imu\":{\"e\":{\"x\":");
+	Serial.print(",\"imu\":{\"e\":{\"x\":");
 	Serial.print(event.orientation.x, 4);
 	Serial.print(",\"y\":");
 	Serial.print(event.orientation.y, 4);
@@ -146,7 +156,8 @@ void setup()
 	pinMode(SWITCH, INPUT_PULLUP);
 	pinMode(CAPSENS, INPUT_PULLUP);
 	Serial.begin(115200);
-	SoftSerial.begin(9600);
+	RFID_1.begin(9600);
+	RFID_2.begin(9600);
 	if(!bno.begin())
 	{
 		//uart_puts("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
@@ -165,6 +176,7 @@ void setup()
 
 void loop()
 {
+	print_rfid();
 	print_bno();
 	print_dig();
 	print_ana();
@@ -173,9 +185,21 @@ void loop()
 
 	delay(20);
 
-	while(SoftSerial.available())
+	if (switchcnt++ % 10 < 5)
 	{
-		process_rfid(SoftSerial.read());
+		RFID_1.listen();
+		while(RFID_1.available() > 0)
+		{
+			lastnr = 0;
+			process_rfid(RFID_1.read());
+		}
+	} else {
+		RFID_2.listen();
+		while(RFID_2.available() > 0)
+		{
+			lastnr = 1;
+			process_rfid(RFID_2.read());
+		}
 	}
 	if (Serial.available())
 	{
