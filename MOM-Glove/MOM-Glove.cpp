@@ -31,7 +31,7 @@ uint8_t ledcnt = 0;
 #define VIB_BIB 1
 #define VIB_NR 14
 uint8_t vibcnt = 0;
-uint8_t vibr[] = {14,15,16,47,48,54,64,70,73};
+uint8_t vibr[] = {14, 15, 16, 47, 48, 54, 64, 70, 73, 74};
 #define KEY	6
 #define SWITCH	7
 #define CAPSENS	8
@@ -77,11 +77,11 @@ inline void set_led(void)
 	}
 }
 
-inline void set_vib(uint8_t vibnr)
+inline void process_cmd(uint8_t cmd)
 {
-	if (vibnr < sizeof(vibr))
+	if (cmd >= '0' && cmd <= '9' && cmd - '0' < (uint8_t) sizeof(vibr))
 	{
-		drv.setWaveform(VIB_BIB, vibr[vibnr]);
+		drv.setWaveform(VIB_BIB, vibr[cmd - '0']);
 		drv.go();
 	}
 }
@@ -179,7 +179,7 @@ void loop()
 	}
 	if (Serial.available())
 	{
-		set_vib(Serial.read());
+		process_cmd(Serial.read());
 	}
 	set_vib_2nd();
 }
