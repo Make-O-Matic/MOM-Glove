@@ -145,7 +145,7 @@ inline void print_dig(void)
 inline void print_ana(void)
 {
 	Serial.print(",\"myo\" :");
-	Serial.print(analogRead(MYOSENS));
+	Serial.print((int16_t) analogRead(MYOSENS) - 512);
 	Serial.print("}\n");
 }
 
