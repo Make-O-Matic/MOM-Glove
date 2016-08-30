@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
+#include "PacketSerial.h"
 #include "Adafruit_BNO055.h"
 #include "Adafruit_DRV2605.h"
 
@@ -20,13 +21,11 @@ LOCKBITS = LB_MODE_3;	//0xFC
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 Adafruit_DRV2605 drv = Adafruit_DRV2605();
 
+PacketSerial PSerial;
 SoftwareSerial RFID_1(2, 3);
 SoftwareSerial RFID_2(4, 5);
 uint8_t switchcnt;
-unsigned char buffer[64];
 #define ID_LENGTH 12
-unsigned char last[ID_LENGTH];
-uint8_t lastnr = 0;
 uint8_t listcnt = 0;
 uint8_t ledcnt = 0;
 #define VIB_CNT 15
@@ -39,8 +38,21 @@ uint8_t vibr[] = {14, 15, 16, 47, 48, 54, 64, 70, 73, 74};
 #define CAPSENS	8
 #define MYOSENS A6
 
+typedef struct {
+	uint8_t rfid[ID_LENGTH];
+	float ex, ey, ez;
+	float ax, ay, az;
+	uint16_t myo;
+	uint8_t key : 1;
+	uint8_t sw : 1;
+	uint8_t capsens : 1;
+	uint8_t lastnr : 1;
+} packet;
+packet pkg;
+
 void process_rfid(uint8_t c)
 {
+	static uint8_t buffer[64];
 	static int count = 0;
 	if (c == 0x02)
 	{
@@ -49,9 +61,9 @@ void process_rfid(uint8_t c)
 	else if (c == 0x03)
 	{
 		ledcnt = 0;
-		if (memcmp(buffer, last, sizeof(last)) != 0)
+		if (memcmp(buffer, pkg.rfid, sizeof(pkg.rfid)) != 0)
 		{
-			memcpy(last, buffer, sizeof(last));
+			memcpy(pkg.rfid, buffer, sizeof(pkg.rfid));
 			drv.setWaveform(VIB_BIB, VIB_NR);
 			drv.go();
 			vibcnt = VIB_CNT;
@@ -101,66 +113,27 @@ inline void set_vib_2nd(void)
 	}
 }
 
-void print_escaped(char c)
-{
-	Serial.write(c);
-	if (c == '\n')
-		Serial.write('\n');
-}
-
-void print_float(float val)
-{
-		union
-		{
-			float f;
-			char c[4];
-		};
-		f = val;
-		for (int i = 0; i < 4; i++)
-			print_escaped(c[i]);
-}
-
-void print_uint16(float val)
-{
-	union
-	{
-		uint16_t ui;
-		char c[2];
-	};
-	ui = val;
-	for (int i = 0; i < 2; i++)
-	print_escaped(c[i]);
-}
-
-inline void print_rfid(void)
-{
-	Serial.write(last, ID_LENGTH);
-	Serial.print(lastnr);
-}
-
-inline void print_bno(void)
+inline void read_bno(void)
 {
 	sensors_event_t event;
 	bno.getEvent(&event);
+	pkg.ex = event.orientation.x;
+	pkg.ey = event.orientation.y;
+	pkg.ez = event.orientation.z;
+
 	imu::Vector<3> vec = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-
-	Serial.write(buffer,ID_LENGTH);
-	print_float(event.orientation.x);
-	print_float(event.orientation.y);
-	print_float(event.orientation.z);
-	print_float(vec.x());
-	print_float(vec.y());
-	print_float(vec.z());
+	pkg.ax = vec.x();
+	pkg.ay = vec.y();
+	pkg.az = vec.z();
 }
 
-inline void print_dig(void)
+inline void read_inputs(void)
 {
-	print_escaped((char) (digitalRead(KEY) ? '1' : '0') + (digitalRead(SWITCH) ? '2' : '0') + (digitalRead(CAPSENS) ? '4' : '0'));
-}
+	pkg.key = digitalRead(KEY);
+	pkg.sw = digitalRead(SWITCH);
+	pkg.capsens = digitalRead(CAPSENS);
 
-inline void print_ana(void)
-{
-	print_uint16(analogRead(MYOSENS));
+	pkg.myo = analogRead(MYOSENS);
 }
 
 void setup()
@@ -169,14 +142,10 @@ void setup()
 	pinMode(KEY, INPUT_PULLUP);
 	pinMode(SWITCH, INPUT_PULLUP);
 	pinMode(CAPSENS, INPUT_PULLUP);
-	Serial.begin(115200);
+	PSerial.begin(115200);
 	RFID_1.begin(9600);
 	RFID_2.begin(9600);
-	if(!bno.begin())
-	{
-		//uart_puts("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-		while(1);
-	}
+	bno.begin();
 	delay(1000);
 	bno.setExtCrystalUse(true);
 	
@@ -190,11 +159,9 @@ void setup()
 
 void loop()
 {
-	print_rfid();
-	print_bno();
-	print_dig();
-	print_ana();
-
+	read_bno();
+	read_inputs();
+	PSerial.send((uint8_t*) &pkg, sizeof(pkg));
 	set_led();
 
 	delay(20);
@@ -204,14 +171,14 @@ void loop()
 		RFID_1.listen();
 		while(RFID_1.available() > 0)
 		{
-			lastnr = 0;
+			pkg.lastnr = 0;
 			process_rfid(RFID_1.read());
 		}
 	} else {
 		RFID_2.listen();
 		while(RFID_2.available() > 0)
 		{
-			lastnr = 1;
+			pkg.lastnr = 1;
 			process_rfid(RFID_2.read());
 		}
 	}

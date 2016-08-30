@@ -10,3 +10,6 @@
 [submodule "MOM-Glove/Adafruit_DRV2605_Library"]
 	path = MOM-Glove/Adafruit_DRV2605_Library
 	url = https://github.com/adafruit/Adafruit_DRV2605_Library.git
+[submodule "MOM-Glove/PacketSerial"]
+	path = MOM-Glove/PacketSerial
+	url = https://github.com/bakercp/PacketSerial
