@@ -155,8 +155,8 @@ void loop()
 
 	delay(20);
 
-	if (switchcnt++ % 10 < 5)
-	{
+	//if (switchcnt++ % 10 < 5)
+	/*{
 		RFID_1.listen();
 		while(RFID_1.available() > 0)
 		{
@@ -164,13 +164,13 @@ void loop()
 			process_rfid(RFID_1.read());
 		}
 	} else {
-		RFID_2.listen();
+	*/	RFID_2.listen();
 		while(RFID_2.available() > 0)
 		{
 			pkg.lastnr = 1;
 			process_rfid(RFID_2.read());
 		}
-	}
+	//}
 	if (Serial.available())
 	{
 		process_cmd(Serial.read());
