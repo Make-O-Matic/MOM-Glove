@@ -26,12 +26,11 @@ SoftwareSerial RFID_1(2, 3);
 SoftwareSerial RFID_2(4, 5);
 uint8_t switchcnt;
 #define ID_LENGTH 12
-uint8_t listcnt = 0;
+uint8_t rfidcnt = 0;
+#define RFID_CNT 4;
 uint8_t ledcnt = 0;
-#define VIB_CNT 15
 #define VIB_BIB 1
 #define VIB_NR 14
-uint8_t vibcnt = 0;
 uint8_t vibr[] = {14, 15, 16, 47, 48, 54, 64, 70, 73, 74};
 #define KEY	6
 #define SWITCH	7
@@ -61,13 +60,8 @@ void process_rfid(uint8_t c)
 	else if (c == 0x03)
 	{
 		ledcnt = 0;
-		if (memcmp(buffer, pkg.rfid, sizeof(pkg.rfid)) != 0)
-		{
-			memcpy(pkg.rfid, buffer, sizeof(pkg.rfid));
-			drv.setWaveform(VIB_BIB, VIB_NR);
-			drv.go();
-			vibcnt = VIB_CNT;
-		}
+		memcpy(pkg.rfid, buffer, sizeof(pkg.rfid));
+		rfidcnt = RFID_CNT;
 	}
 	else if(count < 64)
 	{
@@ -97,19 +91,6 @@ inline void process_cmd(uint8_t cmd)
 	{
 		drv.setWaveform(VIB_BIB, vibr[cmd - '0']);
 		drv.go();
-	}
-}
-
-inline void set_vib_2nd(void)
-{
-	if (vibcnt != 0)
-	{
-		vibcnt--;
-		if (vibcnt == 0)
-		{
-			drv.setWaveform(VIB_BIB, VIB_NR);
-			drv.go();
-		}
 	}
 }
 
@@ -162,6 +143,14 @@ void loop()
 	read_bno();
 	read_inputs();
 	PSerial.send((uint8_t*) &pkg, sizeof(pkg));
+	if (rfidcnt)
+	{
+		rfidcnt--;
+	}
+	else
+	{
+		memset(pkg.rfid, 0, sizeof(pkg.rfid));
+	}
 	set_led();
 
 	delay(20);
@@ -186,5 +175,4 @@ void loop()
 	{
 		process_cmd(Serial.read());
 	}
-	set_vib_2nd();
 }
