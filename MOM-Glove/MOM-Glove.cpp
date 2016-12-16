@@ -36,6 +36,9 @@ uint8_t vibr[] = {14, 15, 16, 47, 48, 54, 64, 70, 73, 74};
 #define SWITCH	7
 #define CAPSENS	8
 #define MYOSENS A6
+#define BEEP 15
+uint8_t beepcnt = 0;
+#define BEEP_CNT 10
 
 typedef struct {
 	uint8_t rfid[ID_LENGTH];
@@ -92,6 +95,11 @@ inline void process_cmd(uint8_t cmd)
 		drv.setWaveform(VIB_BIB, vibr[cmd - '0']);
 		drv.go();
 	}
+	if (cmd == '*')
+	{
+		beepcnt = BEEP_CNT;
+		digitalWrite(BEEP, HIGH);
+	}
 }
 
 inline void read_bno(void)
@@ -120,6 +128,7 @@ inline void read_inputs(void)
 void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
+	pinMode(BEEP, OUTPUT);
 	pinMode(KEY, INPUT_PULLUP);
 	pinMode(SWITCH, INPUT_PULLUP);
 	pinMode(CAPSENS, INPUT_PULLUP);
@@ -152,6 +161,14 @@ void loop()
 		memset(pkg.rfid, 0, sizeof(pkg.rfid));
 	}
 	set_led();
+	if (beepcnt)
+	{
+		beepcnt--;
+	}
+	else
+	{
+		digitalWrite(BEEP, LOW);
+	}
 
 	delay(20);
 
