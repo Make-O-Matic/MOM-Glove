@@ -25,7 +25,6 @@ PacketSerial PSerial;
 SoftwareSerial RFID_1(2, 3);
 SoftwareSerial RFID_2(4, 5);
 uint8_t switchcnt;
-#define ID_LENGTH 12
 uint8_t rfidcnt = 0;
 #define RFID_CNT 4;
 uint8_t ledcnt = 0;
@@ -41,16 +40,9 @@ uint8_t beepcnt = 0;
 #define GRASP_B A1
 #define GRASP_C A2
 
-typedef struct {
-	uint8_t rfid[ID_LENGTH];
-	float ex, ey, ez;
-	float ax, ay, az;
-	uint16_t graspa, graspb, graspc;
-	uint8_t key : 1;
-	uint8_t wear : 1;
-	uint8_t lastnr : 1;
-} packet;
-packet pkg;
+#include "Packet.h"
+
+Packet pkg;
 
 void process_rfid(uint8_t c)
 {

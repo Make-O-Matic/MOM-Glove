@@ -144,6 +144,9 @@
       <SubType>compile</SubType>
       <Link>Adafruit_Sensor.h</Link>
     </Compile>
+    <Compile Include="Packet.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="PacketSerial\src\Encoding\COBS.h">
       <SubType>compile</SubType>
       <Link>COBS.h</Link>
