@@ -33,21 +33,21 @@ uint8_t ledcnt = 0;
 #define VIB_NR 14
 uint8_t vibr[] = {14, 15, 16, 47, 48, 54, 64, 70, 73, 74};
 #define KEY	6
-#define SWITCH	7
-#define CAPSENS	8
-#define MYOSENS A6
-#define BEEP 15
+#define BEEP 7
 uint8_t beepcnt = 0;
 #define BEEP_CNT 10
+#define WEAR	8
+#define GRASP_A A0
+#define GRASP_B A1
+#define GRASP_C A2
 
 typedef struct {
 	uint8_t rfid[ID_LENGTH];
 	float ex, ey, ez;
 	float ax, ay, az;
-	uint16_t myo;
+	uint16_t graspa, graspb, graspc;
 	uint8_t key : 1;
-	uint8_t sw : 1;
-	uint8_t capsens : 1;
+	uint8_t wear : 1;
 	uint8_t lastnr : 1;
 } packet;
 packet pkg;
@@ -119,10 +119,11 @@ inline void read_bno(void)
 inline void read_inputs(void)
 {
 	pkg.key = digitalRead(KEY);
-	pkg.sw = digitalRead(SWITCH);
-	pkg.capsens = digitalRead(CAPSENS);
+	pkg.wear = digitalRead(WEAR);
 
-	pkg.myo = analogRead(MYOSENS);
+	pkg.graspa = analogRead(GRASP_A);
+	pkg.graspb = analogRead(GRASP_B);
+	pkg.graspc = analogRead(GRASP_C);
 }
 
 void setup()
@@ -130,8 +131,7 @@ void setup()
 	pinMode(LED_BUILTIN, OUTPUT);
 	pinMode(BEEP, OUTPUT);
 	pinMode(KEY, INPUT_PULLUP);
-	pinMode(SWITCH, INPUT_PULLUP);
-	pinMode(CAPSENS, INPUT_PULLUP);
+	pinMode(WEAR, INPUT_PULLUP);
 	PSerial.begin(115200);
 	RFID_1.begin(9600);
 	RFID_2.begin(9600);
