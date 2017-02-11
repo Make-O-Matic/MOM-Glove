@@ -110,8 +110,8 @@ inline void read_bno(void)
 
 inline void read_inputs(void)
 {
-	pkg.key = digitalRead(KEY);
-	pkg.wear = digitalRead(WEAR);
+	pkg.key = digitalRead(KEY) ^ 1;
+	pkg.wear = digitalRead(WEAR) ^ 1;
 
 	pkg.graspa = analogRead(GRASP_A);
 	pkg.graspb = analogRead(GRASP_B);
